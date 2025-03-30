@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Boot Project Generator</title>
+</head>
+<body>
+<h1>Spring Boot Project Generator</h1>
+<form action="/api/spring-project-generator/v2/generate" method="post">
+    <div>
+        <label for="projectName">Project Name:</label>
+        <input type="text" id="projectName" name="projectName" th:value="${projectRequest.projectName}" required />
+    </div>
+    <div>
+        <h3>Select Packages:</h3>
+        <ul>
+            <li th:each="pkg : ${availablePackages}">
+                <input type="checkbox" th:id="${pkg}" name="packages" th:value="${pkg}" />
+                <label th:for="${pkg}" th:text="${pkg}"></label>
+            </li>
+        </ul>
+    </div>
+    <div>
+        <button type="submit">Generate Project</button>
+    </div>
+</form>
+</body>
+</html>
