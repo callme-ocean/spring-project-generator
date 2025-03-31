@@ -39,9 +39,21 @@ for pkg in "${PKGS[@]}"; do
   fi
 done
 
-# Create directories for resources and tests (using the same package structure for tests)
+# Create directories for resources and tests
 mkdir -p "$PROJECT_NAME/src/main/resources"
 mkdir -p "$PROJECT_NAME/src/test/java/${BASE_PACKAGE_DIR}/${PACKAGE_NAME}"
+
+# Write the application.yml file into src/main/resources
+cat <<EOF > "$PROJECT_NAME/src/main/resources/application.yml"
+server:
+  port: 8080
+  servlet:
+    context-path: /api/$PROJECT_NAME
+
+logging:
+  level:
+    root: INFO
+EOF
 
 # Write the pom.xml file with dynamic groupId and artifactId (simplified example)
 cat <<EOF > "$PROJECT_NAME/pom.xml"
@@ -101,4 +113,4 @@ public class ${APP_CLASS_NAME} {
 }
 EOF
 
-echo "Project '$PROJECT_NAME' generated successfully with package ${GROUP_NAME}.${PACKAGE_NAME} and main class ${APP_CLASS_NAME}!"
+echo "Project '$PROJECT_NAME' generated successfully with package ${GROUP_NAME}.${PACKAGE_NAME}, main class ${APP_CLASS_NAME}, and application.yml with context-path /api/$PROJECT_NAME!"
