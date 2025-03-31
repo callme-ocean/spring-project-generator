@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Spring Boot Project Generator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/modern-normalize/1.1.0/modern-normalize.min.css" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/modern-normalize/1.1.0/modern-normalize.min.css"/>
     <style>
         body {
             margin: 0;
@@ -109,38 +110,87 @@
         <div class="form-section">
             <div class="section-title">Project Name</div>
             <label for="projectName">Enter your project name:</label>
-            <input type="text" id="projectName" name="projectName"
-                   th:value="${projectRequest.projectName}" required/>
+            <input type="text" id="projectName" name="projectName" th:value="${projectRequest.projectName}" required/>
         </div>
+
         <div class="form-section">
             <div class="section-title">Group Name</div>
             <label for="groupName">Enter your group name:</label>
-            <input type="text" id="groupName" name="groupName"
-                   th:value="${projectRequest.groupName}" required/>
+            <input type="text" id="groupName" name="groupName" th:value="${projectRequest.groupName}" required/>
         </div>
+
         <div class="form-section">
             <div class="section-title">Select Packages</div>
             <div class="packages-grid">
-                <div class="package-card" th:each="pkg : ${availablePackages}"
-                     th:attr="data-pkg=${pkg}">
-                    <input type="checkbox" th:id="${pkg}" name="packages" th:value="${pkg}" onclick="event.stopPropagation()" />
+                <div class="package-card" th:each="pkg : ${availablePackages}" th:attr="data-pkg=${pkg}">
+                    <input type="checkbox" th:id="${pkg}" name="packages" th:value="${pkg}"
+                           onclick="event.stopPropagation()"/>
                     <label th:for="${pkg}" th:text="${pkg}"></label>
                 </div>
             </div>
         </div>
+
+        <!-- API Selection Section (initially hidden) -->
+        <div class="form-section" id="apiSelectionSection" style="display: none;">
+            <div class="section-title">Select APIs</div>
+            <div class="packages-grid">
+                <div class="package-card" th:each="api : ${availableAPIs}" th:attr="data-api=${api}">
+                    <input type="checkbox" th:id="${api}" name="apis" th:value="${api}"
+                           onclick="event.stopPropagation()"/>
+                    <label th:for="${api}" th:text="${api}"></label>
+                </div>
+            </div>
+        </div>
+
         <button type="submit" class="generate-btn">Generate Project</button>
     </form>
 </main>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Attach click event listeners to each package card
+        // Find the controllers checkbox by its id ("controllers")
+        var controllersCheckbox = document.getElementById("controllers");
+        // The API selection section to toggle
+        var apiSection = document.getElementById("apiSelectionSection");
+
+        // Function to toggle API section visibility
+        function toggleApiSection() {
+            if (controllersCheckbox && controllersCheckbox.checked) {
+                apiSection.style.display = "block";
+            } else {
+                apiSection.style.display = "none";
+            }
+        }
+
+        // Add event listener to the controllers checkbox if it exists
+        if (controllersCheckbox) {
+            controllersCheckbox.addEventListener("change", toggleApiSection);
+            // Initial toggle on page load
+            toggleApiSection();
+        }
+
+        // Attach click events to all package and API cards for toggling checkboxes
         document.querySelectorAll('.package-card').forEach(function(card) {
             card.addEventListener("click", function() {
-                let pkg = this.getAttribute("data-pkg");
-                let checkbox = document.getElementById(pkg);
-                if (checkbox) {
-                    checkbox.checked = !checkbox.checked;
+                // Toggle for package cards
+                var pkg = this.getAttribute("data-pkg");
+                if (pkg) {
+                    var checkbox = document.getElementById(pkg);
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        // If the clicked package is 'controllers', update the API section visibility.
+                        if (pkg.toLowerCase() === "controllers") {
+                            toggleApiSection();
+                        }
+                    }
+                }
+                // Toggle for API cards
+                var api = this.getAttribute("data-api");
+                if (api) {
+                    var checkbox = document.getElementById(api);
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                    }
                 }
             });
         });

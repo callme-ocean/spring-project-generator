@@ -31,7 +31,11 @@ public class HomeController {
                 "controllers", "services", "repositories", "models",
                 "exceptions", "config", "common", "constants", "aspects", "entities"
         };
+        // Define the list of APIs.
+        String[] availableAPIs = {"GET", "POST", "PUT", "DELETE"};
+		
         model.addAttribute("availablePackages", availablePackages);
+		model.addAttribute("availableAPIs", availableAPIs);
         // Bind an empty ProjectRequest for form data binding.
         model.addAttribute("projectRequest", new ProjectRequest());
         return "index"; // Returns the index.html template.

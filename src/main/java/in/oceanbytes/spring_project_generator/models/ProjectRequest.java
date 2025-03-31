@@ -6,8 +6,10 @@ public class ProjectRequest {
     private String projectName;
     private String groupName;
     private List<String> packages;
+    private List<String> apis;
 
     // Getters and setters
+
     public String getProjectName() {
         return projectName;
     }
@@ -30,5 +32,13 @@ public class ProjectRequest {
 
     public void setPackages(List<String> packages) {
         this.packages = packages;
+    }
+
+    public List<String> getApis() {
+        return apis;
+    }
+
+    public void setApis(List<String> apis) {
+        this.apis = apis;
     }
 }

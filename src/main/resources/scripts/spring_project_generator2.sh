@@ -1,13 +1,14 @@
 #!/bin/bash
-# Usage: ./generate_project.sh <project-name> <group-name> <comma-separated-packages>
+# Usage: ./generate_project.sh <project-name> <group-name> <comma-separated-packages> [comma-separated-apis]
 if [ -z "$1" ] || [ -z "$2" ]; then
-  echo "Usage: $0 <project-name> <group-name> <comma-separated-packages>"
+  echo "Usage: $0 <project-name> <group-name> <comma-separated-packages> [comma-separated-apis]"
   exit 1
 fi
 
 PROJECT_NAME=$1
 GROUP_NAME=$2
 PACKAGES_CSV=$3
+APIS=$4  # optional; e.g., "GET,POST,PUT,DELETE"
 
 # For package directories, remove hyphens and convert to lowercase.
 PACKAGE_NAME=$(echo "$PROJECT_NAME" | tr -d '-' | tr '[:upper:]' '[:lower:]')
@@ -113,17 +114,90 @@ public class ${APP_CLASS_NAME} {
 }
 EOF
 
-# If the user selected the "controllers" package, generate ExampleController.java
+# If the user selected the "controllers" package, generate ExampleController.java with API methods if provided.
 if echo "$PACKAGES_CSV" | grep -iw "controllers" > /dev/null; then
+    API_METHODS=""
+    # Trim whitespace from APIS.
+    APIS=$(echo "$APIS" | xargs)
+    if [ ! -z "$APIS" ]; then
+        # Split the APIS string into an array using comma as delimiter.
+        IFS=',' read -ra API_ARRAY <<< "$APIS"
+        for api in "${API_ARRAY[@]}"; do
+            # Trim whitespace and convert to uppercase for comparison.
+            api_trimmed=$(echo "$api" | xargs)
+            api_upper=$(echo "$api_trimmed" | tr '[:lower:]' '[:upper:]')
+            case "$api_upper" in
+                "GET")
+                    API_METHODS="${API_METHODS}
+    @GetMapping
+    public ResponseEntity<List<String>> getAllItems() {
+        return ResponseEntity.ok(new ArrayList<>(items.values()));
+    }
+
+    @GetMapping(\"/{id}\")
+    public ResponseEntity<String> getItemById(@PathVariable Long id) {
+        String item = items.get(id);
+        return item != null ? ResponseEntity.ok(item) : ResponseEntity.notFound().build();
+    }"
+                    ;;
+                "POST")
+                    API_METHODS="${API_METHODS}
+    @PostMapping
+    public ResponseEntity<String> createItem(@RequestBody String item) {
+        long id = idCounter++;
+        items.put(id, item);
+        return ResponseEntity.status(HttpStatus.CREATED).body(\"Item created with ID: \" + id);
+    }"
+                    ;;
+                "PUT")
+                    API_METHODS="${API_METHODS}
+    @PutMapping(\"/{id}\")
+    public ResponseEntity<String> updateItem(@PathVariable Long id, @RequestBody String newItem) {
+        if (!items.containsKey(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        items.put(id, newItem);
+        return ResponseEntity.ok(\"Item updated successfully\");
+    }"
+                    ;;
+                "DELETE")
+                    API_METHODS="${API_METHODS}
+    @DeleteMapping(\"/{id}\")
+    public ResponseEntity<String> deleteItem(@PathVariable Long id) {
+        if (!items.containsKey(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        items.remove(id);
+        return ResponseEntity.ok(\"Item deleted successfully\");
+    }"
+                    ;;
+                *)
+                    # Ignore unknown API types.
+                    ;;
+            esac
+        done
+    fi
+
+    # Generate the controller file with API methods if any were selected.
     cat <<EOF > "$BASE_DIR/controllers/ExampleController.java"
 package ${GROUP_NAME}.${PACKAGE_NAME}.controllers;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/v1")
 public class ExampleController {
+
+    private Map<Long, String> items = new ConcurrentHashMap<>();
+    private long idCounter = 1;
+
+${API_METHODS}
 }
 EOF
 fi

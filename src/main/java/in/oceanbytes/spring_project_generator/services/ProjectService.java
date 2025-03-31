@@ -22,6 +22,12 @@ public class ProjectService {
         String groupName = request.getGroupName();
         String packageCsv = String.join(",", request.getPackages());
 
+        // Prepare the APIs parameter (if any)
+        String apis = "";
+        if (request.getApis() != null && !request.getApis().isEmpty()) {
+            apis = String.join(",", request.getApis());
+        }
+
         // Create a temporary working directory under the baseDir for project generation.
         Path tempDir = Files.createTempDirectory(baseDir, "project_");
 
@@ -33,10 +39,18 @@ public class ProjectService {
         ProcessBuilder pb;
         if (osName.contains("win")) {
             // On Windows, run via bash (ensure bash is in PATH)
-            pb = new ProcessBuilder("bash", tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
+            if (apis.isEmpty()) {
+                pb = new ProcessBuilder("bash", tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
+            } else {
+                // On Unix-like systems, run the script directly.
+                pb = new ProcessBuilder("bash", tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis);
+            }
         } else {
-            // On Unix-like systems, run the script directly.
-            pb = new ProcessBuilder(tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
+            if (apis.isEmpty()) {
+                pb = new ProcessBuilder(tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
+            } else {
+                pb = new ProcessBuilder(tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis);
+            }
         }
         pb.directory(tempDir.toFile());
         Process process = pb.start();
@@ -153,7 +167,7 @@ public class ProjectService {
     /**
      * Recursively deletes a file or directory.
      */
-    private void deleteRecursively(File file)  {
+    private void deleteRecursively(File file) {
         if (file.isDirectory()) {
             File[] children = file.listFiles();
             if (children != null) {
