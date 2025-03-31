@@ -6,8 +6,6 @@ public class ProjectRequest {
     private String projectName;
     private List<String> packages;
 
-    // Getters and setters
-
     public String getProjectName() {
         return projectName;
     }
