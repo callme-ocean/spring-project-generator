@@ -19,6 +19,7 @@ public class ProjectService {
         Files.createDirectories(baseDir);
 
         String projectName = request.getProjectName();
+        String groupName = request.getGroupName();
         String packageCsv = String.join(",", request.getPackages());
 
         // Create a temporary working directory under the baseDir for project generation.
@@ -32,10 +33,10 @@ public class ProjectService {
         ProcessBuilder pb;
         if (osName.contains("win")) {
             // On Windows, run via bash (ensure bash is in PATH)
-            pb = new ProcessBuilder("bash", tempScriptFile.getAbsolutePath(), projectName, packageCsv);
+            pb = new ProcessBuilder("bash", tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
         } else {
             // On Unix-like systems, run the script directly.
-            pb = new ProcessBuilder(tempScriptFile.getAbsolutePath(), projectName, packageCsv);
+            pb = new ProcessBuilder(tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
         }
         pb.directory(tempDir.toFile());
         Process process = pb.start();
