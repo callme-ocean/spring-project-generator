@@ -113,4 +113,19 @@ public class ${APP_CLASS_NAME} {
 }
 EOF
 
-echo "Project '$PROJECT_NAME' generated successfully with package ${GROUP_NAME}.${PACKAGE_NAME}, main class ${APP_CLASS_NAME}, and application.yml with context-path /api/$PROJECT_NAME!"
+# If the user selected the "controllers" package, generate ExampleController.java
+if echo "$PACKAGES_CSV" | grep -iw "controllers" > /dev/null; then
+    cat <<EOF > "$BASE_DIR/controllers/ExampleController.java"
+package ${GROUP_NAME}.${PACKAGE_NAME}.controllers;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/v1")
+public class ExampleController {
+}
+EOF
+fi
+
+echo "Project '$PROJECT_NAME' generated successfully with package ${GROUP_NAME}.${PACKAGE_NAME}, main class ${APP_CLASS_NAME}, application.yml, and controller (if selected)!"
