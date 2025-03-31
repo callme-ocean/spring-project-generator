@@ -9,14 +9,25 @@ PROJECT_NAME=$1
 GROUP_NAME=$2
 PACKAGES_CSV=$3
 
-# Remove hyphens from project name for package naming, and convert to lowercase.
-SANITIZED_PROJECT_NAME=$(echo "$PROJECT_NAME" | tr -d '-' | tr '[:upper:]' '[:lower:]')
+# For package directories, remove hyphens and convert to lowercase.
+PACKAGE_NAME=$(echo "$PROJECT_NAME" | tr -d '-' | tr '[:upper:]' '[:lower:]')
+
+# Convert project name to CamelCase for the main class.
+IFS='-' read -ra TOKENS <<< "$PROJECT_NAME"
+CAMEL_PROJECT_NAME=""
+for token in "${TOKENS[@]}"; do
+    # Capitalize the first letter and append the rest unchanged.
+    first_letter=$(echo "${token:0:1}" | tr '[:lower:]' '[:upper:]')
+    rest=${token:1}
+    CAMEL_PROJECT_NAME="${CAMEL_PROJECT_NAME}${first_letter}${rest}"
+done
+APP_CLASS_NAME="${CAMEL_PROJECT_NAME}Application"
 
 # Convert group name to directory structure (e.g., in.oceanbytes -> in/oceanbytes)
 BASE_PACKAGE_DIR=$(echo "$GROUP_NAME" | tr '.' '/')
 
 # Define the base package path for the generated project
-BASE_DIR="$PROJECT_NAME/src/main/java/${BASE_PACKAGE_DIR}/${SANITIZED_PROJECT_NAME}"
+BASE_DIR="$PROJECT_NAME/src/main/java/${BASE_PACKAGE_DIR}/${PACKAGE_NAME}"
 mkdir -p "$BASE_DIR"
 
 # Create additional package directories based on the comma-separated list
@@ -30,7 +41,7 @@ done
 
 # Create directories for resources and tests (using the same package structure for tests)
 mkdir -p "$PROJECT_NAME/src/main/resources"
-mkdir -p "$PROJECT_NAME/src/test/java/${BASE_PACKAGE_DIR}/${SANITIZED_PROJECT_NAME}"
+mkdir -p "$PROJECT_NAME/src/test/java/${BASE_PACKAGE_DIR}/${PACKAGE_NAME}"
 
 # Write the pom.xml file with dynamic groupId and artifactId (simplified example)
 cat <<EOF > "$PROJECT_NAME/pom.xml"
@@ -75,11 +86,9 @@ cat <<EOF > "$PROJECT_NAME/pom.xml"
 </project>
 EOF
 
-# Create a basic Spring Boot main application class.
-# The file name and class name will have the first letter capitalized.
-APP_CLASS_NAME="$(tr '[:lower:]' '[:upper:]' <<< ${SANITIZED_PROJECT_NAME:0:1})${SANITIZED_PROJECT_NAME:1}Application"
+# Create a basic Spring Boot main application class using the CamelCase name.
 cat <<EOF > "$BASE_DIR/${APP_CLASS_NAME}.java"
-package ${GROUP_NAME}.${SANITIZED_PROJECT_NAME};
+package ${GROUP_NAME}.${PACKAGE_NAME};
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -92,4 +101,4 @@ public class ${APP_CLASS_NAME} {
 }
 EOF
 
-echo "Project '$PROJECT_NAME' generated successfully with package ${GROUP_NAME}.${SANITIZED_PROJECT_NAME}!"
+echo "Project '$PROJECT_NAME' generated successfully with package ${GROUP_NAME}.${PACKAGE_NAME} and main class ${APP_CLASS_NAME}!"
