@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.File;
@@ -39,15 +38,18 @@ public class HomeController {
     }
 
     // Handle the form submission and return the generated zip file.
-    @PostMapping("/generate")
+    @GetMapping(value = "/generate", produces = "application/zip")
     public ResponseEntity<InputStreamResource> generateProject(ProjectRequest projectRequest) throws Exception {
         File zipFile = projectService.generateProject(projectRequest);
         InputStreamResource resource = new InputStreamResource(new FileInputStream(zipFile));
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + zipFile.getName())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + zipFile.getName() + "\"")
                 .contentLength(zipFile.length())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(MediaType.valueOf("application/zip"))
                 .body(resource);
     }
+
+
+
 }
