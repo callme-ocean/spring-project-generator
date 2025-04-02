@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Usage: ./generate_project.sh <project-name> <group-name> <comma-separated-packages> [comma-separated-apis]
 if [ -z "$1" ] || [ -z "$2" ]; then
   echo "Usage: $0 <project-name> <group-name> <comma-separated-packages> [comma-separated-apis]"
@@ -13,7 +14,7 @@ APIS=$4  # optional; e.g., "GET,POST,PUT,DELETE"
 # For package directories, remove hyphens and convert to lowercase.
 PACKAGE_NAME=$(echo "$PROJECT_NAME" | tr -d '-' | tr '[:upper:]' '[:lower:]')
 
-# Convert project name to CamelCase for the main class.
+# Convert project name to CamelCase for the main class
 IFS='-' read -ra TOKENS <<< "$PROJECT_NAME"
 CAMEL_PROJECT_NAME=""
 for token in "${TOKENS[@]}"; do
@@ -34,10 +35,8 @@ mkdir -p "$BASE_DIR"
 # Create additional package directories based on the comma-separated list
 IFS=',' read -ra PKGS <<< "$PACKAGES_CSV"
 for pkg in "${PKGS[@]}"; do
-  pkg=$(echo $pkg | xargs)  # trim whitespace
-  if [ ! -z "$pkg" ]; then
-    mkdir -p "$BASE_DIR/$pkg"
-  fi
+  pkg=$(echo $pkg | xargs)
+  [ ! -z "$pkg" ] && mkdir -p "$BASE_DIR/$pkg"
 done
 
 # Create directories for resources and tests
@@ -56,7 +55,7 @@ logging:
     root: INFO
 EOF
 
-# Write the pom.xml file with dynamic groupId and artifactId (simplified example)
+# Write the pom.xml file with dynamic groupId and artifactId
 cat <<EOF > "$PROJECT_NAME/pom.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -123,9 +122,7 @@ if echo "$PACKAGES_CSV" | grep -iw "controllers" > /dev/null; then
         # Split the APIS string into an array using comma as delimiter.
         IFS=',' read -ra API_ARRAY <<< "$APIS"
         for api in "${API_ARRAY[@]}"; do
-            # Trim whitespace and convert to uppercase for comparison.
-            api_trimmed=$(echo "$api" | xargs)
-            api_upper=$(echo "$api_trimmed" | tr '[:lower:]' '[:upper:]')
+            api_upper=$(echo "$api" | tr '[:lower:]' '[:upper:]')
             case "$api_upper" in
                 "GET")
                     API_METHODS="${API_METHODS}
@@ -178,7 +175,7 @@ if echo "$PACKAGES_CSV" | grep -iw "controllers" > /dev/null; then
         done
     fi
 
-    # Generate the controller file with API methods if any were selected.
+# Generate the controller file with API methods if any were selected.
     cat <<EOF > "$BASE_DIR/controllers/ExampleController.java"
 package ${GROUP_NAME}.${PACKAGE_NAME}.controllers;
 
@@ -202,4 +199,42 @@ ${API_METHODS}
 EOF
 fi
 
+# Generate .gitignore
+cat > "$PROJECT_NAME/.gitignore" <<EOL
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+EOL
+
+# Success message
 echo "Project '$PROJECT_NAME' generated successfully with package ${GROUP_NAME}.${PACKAGE_NAME}, main class ${APP_CLASS_NAME}, application.yml, and controller (if selected)!"
