@@ -1,7 +1,9 @@
 #!/bin/bash
-
 # Usage: ./generate_project.sh <project-name> <group-name> <comma-separated-packages> [comma-separated-apis]
-if [ -z "$1" ] || [ -z "$2" ]; then
+
+set -euo pipefail
+
+if [[ $# -lt 3 ]]; then
   echo "Usage: $0 <project-name> <group-name> <comma-separated-packages> [comma-separated-apis]"
   exit 1
 fi
@@ -9,42 +11,42 @@ fi
 PROJECT_NAME=$1
 GROUP_NAME=$2
 PACKAGES_CSV=$3
-APIS=$4  # optional; e.g., "GET,POST,PUT,DELETE"
+APIS=${4:-}  # optional; e.g., "GET,POST,PUT,DELETE"
 
-# For package directories, remove hyphens and convert to lowercase.
-PACKAGE_NAME=$(echo "$PROJECT_NAME" | tr -d '-' | tr '[:upper:]' '[:lower:]')
+# Convert project name to package name: remove hyphens and lower-case
+PACKAGE_NAME=$(tr -d '-' <<< "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]')
 
-# Convert project name to CamelCase for the main class
-IFS='-' read -ra TOKENS <<< "$PROJECT_NAME"
-CAMEL_PROJECT_NAME=""
-for token in "${TOKENS[@]}"; do
-    # Capitalize the first letter and append the rest unchanged.
-    first_letter=$(echo "${token:0:1}" | tr '[:lower:]' '[:upper:]')
-    rest=${token:1}
-    CAMEL_PROJECT_NAME="${CAMEL_PROJECT_NAME}${first_letter}${rest}"
-done
+# Function to convert a hyphenated string to CamelCase
+camelize() {
+  IFS='-' read -ra tokens <<< "$1"
+  local result=""
+  for token in "${tokens[@]}"; do
+    result+=$(tr '[:lower:]' '[:upper:]' <<< "${token:0:1}")"${token:1}"
+  done
+  echo "$result"
+}
+
+CAMEL_PROJECT_NAME=$(camelize "$PROJECT_NAME")
 APP_CLASS_NAME="${CAMEL_PROJECT_NAME}Application"
 
 # Convert group name to directory structure (e.g., in.oceanbytes -> in/oceanbytes)
-BASE_PACKAGE_DIR=$(echo "$GROUP_NAME" | tr '.' '/')
-
-# Define the base package path for the generated project
+BASE_PACKAGE_DIR=$(tr '.' '/' <<< "$GROUP_NAME")
 BASE_DIR="$PROJECT_NAME/src/main/java/${BASE_PACKAGE_DIR}/${PACKAGE_NAME}"
-mkdir -p "$BASE_DIR"
 
-# Create additional package directories based on the comma-separated list
+# Create necessary directories in one go
+mkdir -p "$BASE_DIR" \
+         "$PROJECT_NAME/src/main/resources" \
+         "$PROJECT_NAME/src/test/java/${BASE_PACKAGE_DIR}/${PACKAGE_NAME}"
+
+# Create additional package directories based on the comma-separated list (trimming whitespace)
 IFS=',' read -ra PKGS <<< "$PACKAGES_CSV"
 for pkg in "${PKGS[@]}"; do
-  pkg=$(echo $pkg | xargs)
-  [ ! -z "$pkg" ] && mkdir -p "$BASE_DIR/$pkg"
+  pkg=$(echo "$pkg" | xargs)
+  [[ -n "$pkg" ]] && mkdir -p "$BASE_DIR/$pkg"
 done
 
-# Create directories for resources and tests
-mkdir -p "$PROJECT_NAME/src/main/resources"
-mkdir -p "$PROJECT_NAME/src/test/java/${BASE_PACKAGE_DIR}/${PACKAGE_NAME}"
-
-# Write the application.yml file into src/main/resources
-cat <<EOF > "$PROJECT_NAME/src/main/resources/application.yml"
+# Write application.yml
+cat > "$PROJECT_NAME/src/main/resources/application.yml" <<EOF
 server:
   port: 8080
   servlet:
@@ -55,8 +57,8 @@ logging:
     root: INFO
 EOF
 
-# Write the pom.xml file with dynamic groupId and artifactId
-cat <<EOF > "$PROJECT_NAME/pom.xml"
+# Write pom.xml with dynamic groupId and artifactId
+cat > "$PROJECT_NAME/pom.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -98,8 +100,8 @@ cat <<EOF > "$PROJECT_NAME/pom.xml"
 </project>
 EOF
 
-# Create a basic Spring Boot main application class using the CamelCase name.
-cat <<EOF > "$BASE_DIR/${APP_CLASS_NAME}.java"
+# Create the main Spring Boot application class
+cat > "$BASE_DIR/${APP_CLASS_NAME}.java" <<EOF
 package ${GROUP_NAME}.${PACKAGE_NAME};
 
 import org.springframework.boot.SpringApplication;
@@ -113,20 +115,17 @@ public class ${APP_CLASS_NAME} {
 }
 EOF
 
-# If the user selected the "controllers" package, generate ExampleController.java with API methods if provided.
-if echo "$PACKAGES_CSV" | grep -iw "controllers" > /dev/null; then
-    API_METHODS=""
-    # Trim whitespace from APIS.
-    APIS=$(echo "$APIS" | xargs)
-    if [ ! -z "$APIS" ]; then
-        # Split the APIS string into an array using comma as delimiter.
-        IFS=',' read -ra API_ARRAY <<< "$APIS"
-        for api in "${API_ARRAY[@]}"; do
-            api_upper=$(echo "$api" | tr '[:lower:]' '[:upper:]')
-            case "$api_upper" in
-                "GET")
-                    API_METHODS="${API_METHODS}
-    @GetMapping
+# If "controllers" is among the provided packages, generate ExampleController.java with API methods if provided.
+if echo "$PACKAGES_CSV" | grep -iwq "controllers"; then
+  API_METHODS=""
+  APIS=$(echo "$APIS" | xargs)
+  if [[ -n "$APIS" ]]; then
+    IFS=',' read -ra API_ARRAY <<< "$APIS"
+    for api in "${API_ARRAY[@]}"; do
+      api_upper=$(tr '[:lower:]' '[:upper:]' <<< "$api")
+      case "$api_upper" in
+        GET)
+          API_METHODS+=$'\n'"    @GetMapping
     public ResponseEntity<List<String>> getAllItems() {
         return ResponseEntity.ok(new ArrayList<>(items.values()));
     }
@@ -136,19 +135,17 @@ if echo "$PACKAGES_CSV" | grep -iw "controllers" > /dev/null; then
         String item = items.get(id);
         return item != null ? ResponseEntity.ok(item) : ResponseEntity.notFound().build();
     }"
-                    ;;
-                "POST")
-                    API_METHODS="${API_METHODS}
-    @PostMapping
+          ;;
+        POST)
+          API_METHODS+=$'\n'"    @PostMapping
     public ResponseEntity<String> createItem(@RequestBody String item) {
         long id = idCounter++;
         items.put(id, item);
         return ResponseEntity.status(HttpStatus.CREATED).body(\"Item created with ID: \" + id);
     }"
-                    ;;
-                "PUT")
-                    API_METHODS="${API_METHODS}
-    @PutMapping(\"/{id}\")
+          ;;
+        PUT)
+          API_METHODS+=$'\n'"    @PutMapping(\"/{id}\")
     public ResponseEntity<String> updateItem(@PathVariable Long id, @RequestBody String newItem) {
         if (!items.containsKey(id)) {
             return ResponseEntity.notFound().build();
@@ -156,10 +153,9 @@ if echo "$PACKAGES_CSV" | grep -iw "controllers" > /dev/null; then
         items.put(id, newItem);
         return ResponseEntity.ok(\"Item updated successfully\");
     }"
-                    ;;
-                "DELETE")
-                    API_METHODS="${API_METHODS}
-    @DeleteMapping(\"/{id}\")
+          ;;
+        DELETE)
+          API_METHODS+=$'\n'"    @DeleteMapping(\"/{id}\")
     public ResponseEntity<String> deleteItem(@PathVariable Long id) {
         if (!items.containsKey(id)) {
             return ResponseEntity.notFound().build();
@@ -167,16 +163,15 @@ if echo "$PACKAGES_CSV" | grep -iw "controllers" > /dev/null; then
         items.remove(id);
         return ResponseEntity.ok(\"Item deleted successfully\");
     }"
-                    ;;
-                *)
-                    # Ignore unknown API types.
-                    ;;
-            esac
-        done
-    fi
+          ;;
+        *)
+          # Skip unknown API types.
+          ;;
+      esac
+    done
+  fi
 
-# Generate the controller file with API methods if any were selected.
-    cat <<EOF > "$BASE_DIR/controllers/ExampleController.java"
+  cat > "$BASE_DIR/controllers/ExampleController.java" <<EOF
 package ${GROUP_NAME}.${PACKAGE_NAME}.controllers;
 
 import org.springframework.http.HttpStatus;
@@ -200,7 +195,7 @@ EOF
 fi
 
 # Generate .gitignore
-cat > "$PROJECT_NAME/.gitignore" <<EOL
+cat > "$PROJECT_NAME/.gitignore" <<'EOL'
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -236,5 +231,4 @@ build/
 .vscode/
 EOL
 
-# Success message
 echo "Project '$PROJECT_NAME' generated successfully with package ${GROUP_NAME}.${PACKAGE_NAME}, main class ${APP_CLASS_NAME}, application.yml, and controller (if selected)!"
