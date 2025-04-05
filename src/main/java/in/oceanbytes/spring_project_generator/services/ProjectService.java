@@ -97,9 +97,9 @@ public class ProjectService {
      * to a file within the specified directory and marks it as executable.
      */
     private File extractScriptToTempFile(Path workingDir) throws IOException {
-        InputStream scriptStream = getClass().getResourceAsStream("/scripts/spring_project_generator2.sh");
+        InputStream scriptStream = getClass().getResourceAsStream("/scripts/spring_project_generator.sh");
         if (scriptStream == null) {
-            throw new FileNotFoundException("Script file not found in resources: /scripts/spring_project_generator2.sh");
+            throw new FileNotFoundException("Script file not found in resources: /scripts/spring_project_generator.sh");
         }
         // Create a temporary file within workingDir
         File tempScript = new File(workingDir.toFile(), "generate_project.sh");
