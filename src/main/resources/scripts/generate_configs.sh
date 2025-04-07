@@ -44,6 +44,10 @@ cat > "$PROJECT_NAME/pom.xml" <<EOF
           <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
