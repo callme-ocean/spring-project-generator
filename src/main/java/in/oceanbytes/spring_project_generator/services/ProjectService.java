@@ -28,11 +28,17 @@ public class ProjectService {
             apis = String.join(",", request.getApis());
         }
 
-        // Create a temporary working directory under the baseDir for project generation.
+        // Create a temporary working directory under baseDir for project generation.
         Path tempDir = Files.createTempDirectory(baseDir, "project_");
 
-        // Load the shell script from resources and copy it to the temporary directory.
-        File tempScriptFile = extractScriptToTempFile(tempDir);
+        // Extract all required scripts from resources to tempDir.
+        extractScriptsToTempDir(tempDir);
+
+        // Determine the main script file (assumed to be main.sh)
+        File mainScriptFile = new File(tempDir.toFile(), "main.sh");
+        if (!mainScriptFile.exists()) {
+            throw new FileNotFoundException("Main script not found in temporary directory.");
+        }
 
         // Prepare the command based on the operating system.
         String osName = System.getProperty("os.name").toLowerCase();
@@ -40,16 +46,15 @@ public class ProjectService {
         if (osName.contains("win")) {
             // On Windows, run via bash (ensure bash is in PATH)
             if (apis.isEmpty()) {
-                pb = new ProcessBuilder("bash", tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
+                pb = new ProcessBuilder("bash", mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
             } else {
-                // On Unix-like systems, run the script directly.
-                pb = new ProcessBuilder("bash", tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis);
+                pb = new ProcessBuilder("bash", mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis);
             }
         } else {
             if (apis.isEmpty()) {
-                pb = new ProcessBuilder(tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
+                pb = new ProcessBuilder(mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
             } else {
-                pb = new ProcessBuilder(tempScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis);
+                pb = new ProcessBuilder(mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis);
             }
         }
         pb.directory(tempDir.toFile());
@@ -74,7 +79,7 @@ public class ProjectService {
             throw new RuntimeException("Project directory not found after script execution.");
         }
 
-        // Create the zip file in the tempDir first.
+        // Create the zip file in tempDir.
         String zipFileName = projectName + ".zip";
         File zipFileTemp = new File(tempDir.toFile(), zipFileName);
         zipDirectory(projectDir, zipFileTemp);
@@ -82,7 +87,7 @@ public class ProjectService {
         // Clean up: delete everything inside tempDir except the zip file.
         cleanWorkingDirectory(tempDir.toFile(), zipFileTemp);
 
-        // Move the zip file to the baseDir (target/generated-projects) and overwrite if it exists.
+        // Move the zip file to baseDir (target/generated-projects) and overwrite if it exists.
         Path targetZipPath = baseDir.resolve(zipFileName);
         Files.move(zipFileTemp.toPath(), targetZipPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
@@ -93,28 +98,29 @@ public class ProjectService {
     }
 
     /**
-     * Extracts the shell script from the classpath (resources/scripts/generate_project.sh)
-     * to a file within the specified directory and marks it as executable.
+     * Extracts all required shell scripts from the classpath (resources/scripts/) to the specified directory.
+     * This includes main.sh, create_directories.sh, generate_configs.sh, and generate_sources.sh.
      */
-    private File extractScriptToTempFile(Path workingDir) throws IOException {
-        InputStream scriptStream = getClass().getResourceAsStream("/scripts/spring_project_generator.sh");
-        if (scriptStream == null) {
-            throw new FileNotFoundException("Script file not found in resources: /scripts/spring_project_generator.sh");
-        }
-        // Create a temporary file within workingDir
-        File tempScript = new File(workingDir.toFile(), "generate_project.sh");
-        try (FileOutputStream out = new FileOutputStream(tempScript)) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = scriptStream.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
+    private void extractScriptsToTempDir(Path workingDir) throws IOException {
+        String[] scripts = {"main.sh", "create_directories.sh", "generate_configs.sh", "generate_classes.sh"};
+        for (String scriptName : scripts) {
+            InputStream scriptStream = getClass().getResourceAsStream("/scripts/" + scriptName);
+            if (scriptStream == null) {
+                throw new FileNotFoundException("Script file not found in resources: /scripts/" + scriptName);
+            }
+            File outFile = new File(workingDir.toFile(), scriptName);
+            try (FileOutputStream out = new FileOutputStream(outFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = scriptStream.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
+            }
+            // Mark the file as executable (works on Unix-like systems)
+            if (!outFile.setExecutable(true)) {
+                System.err.println("Warning: Could not mark " + scriptName + " as executable");
             }
         }
-        // Mark the temporary file as executable (this may not work on Windows but is needed on Unix-like systems)
-        if (!tempScript.setExecutable(true)) {
-            System.err.println("Warning: Could not mark the script as executable");
-        }
-        return tempScript;
     }
 
     private void zipDirectory(File sourceDir, File zipFile) throws IOException {
