@@ -2,6 +2,8 @@ package in.oceanbytes.spring_project_generator.controllers;
 
 import in.oceanbytes.spring_project_generator.models.ProjectRequest;
 import in.oceanbytes.spring_project_generator.services.ProjectService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +23,8 @@ import java.util.List;
 @RequestMapping("/v2")
 public class HomeController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HomeController.class);
+
     private final ProjectService projectService;
 
     @Value("${project.generator.available-packages}")
@@ -37,13 +41,13 @@ public class HomeController {
     // Display the UI form.
     @GetMapping("/generator")
     public String showForm(Model model) {
-        System.out.printf("inside");
-
         // Define the list of packages that users can select.
         List<String> availablePackages = Arrays.asList(availablePackagesRaw.split(","));
+        LOGGER.debug("availablePackages : {}", availablePackages);
 
         // Define the list of APIs.
         List<String> availableAPIs = Arrays.asList(availableApisRaw.split(","));
+        LOGGER.debug("availableAPIs : {}", availableAPIs);
 
         model.addAttribute("availablePackages", availablePackages);
         model.addAttribute("availableAPIs", availableAPIs);

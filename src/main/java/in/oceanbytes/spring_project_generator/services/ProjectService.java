@@ -1,9 +1,12 @@
 package in.oceanbytes.spring_project_generator.services;
 
+import in.oceanbytes.spring_project_generator.exceptions.ServiceException;
 import in.oceanbytes.spring_project_generator.models.ProjectRequest;
 import in.oceanbytes.spring_project_generator.utils.FileUtils;
 import in.oceanbytes.spring_project_generator.utils.ScriptUtils;
 import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -17,6 +20,9 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class ProjectService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
+
 
     // Common directory for generated projects.
     private static final Path GENERATED_PROJECTS_DIR = Paths.get("target", "generated-projects");
@@ -40,6 +46,7 @@ public class ProjectService {
 
         // Create a temporary working directory under GENERATED_PROJECTS_DIR for project generation.
         Path tempDir = Files.createTempDirectory(GENERATED_PROJECTS_DIR, "project_");
+        LOGGER.debug("tempDir path : {}", tempDir);
 
         // Extract all required scripts from resources to tempDir.
         String[] scripts = {"main.sh", "create_directories.sh", "generate_configs.sh", "generate_classes.sh"};
@@ -53,6 +60,8 @@ public class ProjectService {
 
         // Prepare the command based on the operating system.
         String osName = System.getProperty("os.name").toLowerCase();
+        LOGGER.debug("osName : {}", osName);
+
         ProcessBuilder pb;
         if (osName.contains("win")) {
             // On Windows, run via bash (ensure bash is in PATH)
@@ -75,19 +84,19 @@ public class ProjectService {
         try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
             String line;
             while ((line = errorReader.readLine()) != null) {
-                System.err.println(line);
+                LOGGER.error(line);
             }
         }
 
         int exitCode = process.waitFor();
         if (exitCode != 0) {
-            throw new RuntimeException("Script execution failed with exit code " + exitCode);
+            throw new ServiceException("Script execution failed with exit code " + exitCode);
         }
 
         // The script creates the project directory under tempDir.
         File projectDir = new File(tempDir.toFile(), projectName);
         if (!projectDir.exists()) {
-            throw new RuntimeException("Project directory not found after script execution.");
+            throw new ServiceException("Project directory not found after script execution.");
         }
 
         // Create the zip file in tempDir.
@@ -109,9 +118,9 @@ public class ProjectService {
         scheduler.schedule(() -> {
             try {
                 Files.deleteIfExists(targetZipPath);
-                System.out.println("Scheduled deletion: Deleted file " + targetZipPath);
+                LOGGER.info("Scheduled deletion: Deleted file {}", targetZipPath);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error(e.getMessage());
             }
         }, 60, TimeUnit.SECONDS);
 
@@ -123,7 +132,7 @@ public class ProjectService {
      */
     @PreDestroy
     public void cleanupOnShutdown() {
-        System.out.println("Cleaning up generated projects on shutdown...");
+        LOGGER.info("Cleaning up generated projects on shutdown...");
         FileUtils.deleteFilesInDirectory(GENERATED_PROJECTS_DIR);
         scheduler.shutdown();
     }
