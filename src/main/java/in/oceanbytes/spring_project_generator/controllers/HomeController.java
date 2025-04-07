@@ -29,13 +29,13 @@ public class HomeController {
         // Define the list of packages that users can select.
         String[] availablePackages = {
                 "controllers", "services", "repositories", "models",
-                "exceptions", "config", "common", "constants", "aspects", "entities"
+                "exceptions", "config", "common", "constants", "aspects", "entities", "utils"
         };
         // Define the list of APIs.
         String[] availableAPIs = {"GET", "POST", "PUT", "DELETE"};
-		
+
         model.addAttribute("availablePackages", availablePackages);
-		model.addAttribute("availableAPIs", availableAPIs);
+        model.addAttribute("availableAPIs", availableAPIs);
         // Bind an empty ProjectRequest for form data binding.
         model.addAttribute("projectRequest", new ProjectRequest());
         return "index"; // Returns the index.html template.
@@ -53,7 +53,4 @@ public class HomeController {
                 .contentType(MediaType.valueOf("application/zip"))
                 .body(resource);
     }
-
-
-
 }
