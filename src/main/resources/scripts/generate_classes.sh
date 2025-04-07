@@ -167,3 +167,20 @@ public class LoggingAspect {
 }
 EOF
 fi
+
+# If the user selected the "constants" package, generate ApplicationConstants.java.
+if echo "$PACKAGES_CSV" | grep -iw "constants" > /dev/null; then
+    mkdir -p "$BASE_DIR/constants"
+    cat <<EOF > "$BASE_DIR/constants/ApplicationConstants.java"
+package ${GROUP_NAME}.${PACKAGE_NAME}.constants;
+
+public final class ApplicationConstants {
+
+    private ApplicationConstants() {
+    }
+
+    public static final String APPLICATION_NAME = "MySpringBootApp";
+}
+EOF
+fi
+
