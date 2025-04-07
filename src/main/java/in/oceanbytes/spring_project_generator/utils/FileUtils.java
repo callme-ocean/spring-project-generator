@@ -1,5 +1,8 @@
 package in.oceanbytes.spring_project_generator.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,6 +14,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public final class FileUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
     private FileUtils() {
     }
@@ -75,7 +80,7 @@ public final class FileUtils {
             }
         }
         if (!file.delete()) {
-            System.err.println("Failed to delete: " + file.getAbsolutePath());
+            LOGGER.error("Failed to delete: {}", file.getAbsolutePath());
         }
     }
 
@@ -90,13 +95,13 @@ public final class FileUtils {
                     .forEach(path -> {
                         try {
                             Files.deleteIfExists(path);
-                            System.out.println("Deleted file on shutdown: " + path);
+                            LOGGER.info("Deleted file on shutdown: {}", path);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LOGGER.error(e.getMessage());
                         }
                     });
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
 }

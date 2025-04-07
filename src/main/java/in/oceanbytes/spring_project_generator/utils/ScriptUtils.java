@@ -1,8 +1,13 @@
 package in.oceanbytes.spring_project_generator.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 
 public final class ScriptUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScriptUtils.class);
 
     private ScriptUtils() {
     }
@@ -27,7 +32,7 @@ public final class ScriptUtils {
             }
             // Mark the file as executable (works on Unix-like systems)
             if (!outFile.setExecutable(true)) {
-                System.err.println("Warning: Could not mark " + scriptName + " as executable");
+                LOGGER.error("Warning: Could not mark {} as executable", scriptName);
             }
         }
     }
