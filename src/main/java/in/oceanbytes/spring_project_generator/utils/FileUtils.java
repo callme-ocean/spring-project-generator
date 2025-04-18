@@ -7,9 +7,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -71,16 +74,24 @@ public final class FileUtils {
      * Recursively deletes a file or directory.
      */
     public static void deleteRecursively(File file) {
-        if (file.isDirectory()) {
-            File[] children = file.listFiles();
-            if (children != null) {
-                for (File child : children) {
-                    deleteRecursively(child);
+        Path path = file.toPath();
+        try {
+            if (Files.isDirectory(path)) {
+                File[] children = file.listFiles();
+                if (children != null) {
+                    for (File child : children) {
+                        deleteRecursively(child);
+                    }
                 }
             }
-        }
-        if (!file.delete()) {
-            LOGGER.error("Failed to delete: {}", file.getAbsolutePath());
+            Files.delete(path);
+            LOGGER.debug("Deleted: {}", path);
+        } catch (NoSuchFileException e) {
+            LOGGER.error("File does not exist: {}", path, e);
+        } catch (DirectoryNotEmptyException e) {
+            LOGGER.error("Directory not empty: {}", path, e);
+        } catch (IOException e) {
+            LOGGER.error("Failed to delete: {} - {}", path, e.getMessage(), e);
         }
     }
 
@@ -88,20 +99,19 @@ public final class FileUtils {
      * Deletes all regular files under the directory.
      */
     public static void deleteFilesInDirectory(Path directory) {
-        try {
-            Files.walk(directory)
-                    .filter(Files::isRegularFile)
+        try (Stream<Path> pathStream = Files.walk(directory)) {
+            pathStream.filter(Files::isRegularFile)
                     .sorted(Comparator.reverseOrder())
                     .forEach(path -> {
                         try {
                             Files.deleteIfExists(path);
                             LOGGER.info("Deleted file on shutdown: {}", path);
                         } catch (IOException e) {
-                            LOGGER.error(e.getMessage());
+                            LOGGER.error("Failed to delete file: {}", path, e);
                         }
                     });
         } catch (IOException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Failed to walk directory: {}", directory, e);
         }
     }
 }

@@ -7,6 +7,7 @@ import in.oceanbytes.spring_project_generator.utils.ScriptUtils;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -20,9 +21,10 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class ProjectService {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
+    @Value("${delete-files-after-seconds}")
+    private long deleteAfterSeconds;
 
     // Common directory for generated projects.
     private static final Path GENERATED_PROJECTS_DIR = Paths.get("target", "generated-projects");
@@ -30,7 +32,7 @@ public class ProjectService {
     // Scheduler to delete generated files after 60 seconds.
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public File generateProject(ProjectRequest request) throws Exception {
+    public File generateProject(ProjectRequest request) throws IOException, InterruptedException {
         // Create the base directory if it doesn't exist.
         Files.createDirectories(GENERATED_PROJECTS_DIR);
 
@@ -99,6 +101,19 @@ public class ProjectService {
             throw new ServiceException("Project directory not found after script execution.");
         }
 
+        // Create and handle the zip file
+        Path targetZipPath = createAndHandleZipFile(projectName, tempDir, projectDir);
+
+        // Delete the temporary directory.
+        FileUtils.deleteRecursively(tempDir.toFile());
+
+        // Schedule deletion of the generated zip file after 60 seconds.
+        scheduleDeletion(targetZipPath);
+
+        return targetZipPath.toFile();
+    }
+
+    private Path createAndHandleZipFile(String projectName, Path tempDir, File projectDir) throws IOException {
         // Create the zip file in tempDir.
         String zipFileName = projectName + ".zip";
         File zipFileTemp = new File(tempDir.toFile(), zipFileName);
@@ -111,10 +126,10 @@ public class ProjectService {
         Path targetZipPath = GENERATED_PROJECTS_DIR.resolve(zipFileName);
         Files.move(zipFileTemp.toPath(), targetZipPath, StandardCopyOption.REPLACE_EXISTING);
 
-        // Delete the temporary directory.
-        FileUtils.deleteRecursively(tempDir.toFile());
+        return targetZipPath;
+    }
 
-        // Schedule deletion of the generated zip file after 60 seconds.
+    private void scheduleDeletion(Path targetZipPath) {
         scheduler.schedule(() -> {
             try {
                 Files.deleteIfExists(targetZipPath);
@@ -122,9 +137,7 @@ public class ProjectService {
             } catch (IOException e) {
                 LOGGER.error(e.getMessage());
             }
-        }, 60, TimeUnit.SECONDS);
-
-        return targetZipPath.toFile();
+        }, deleteAfterSeconds, TimeUnit.SECONDS);
     }
 
     /**

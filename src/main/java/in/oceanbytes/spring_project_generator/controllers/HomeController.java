@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Controller
-@RequestMapping("/v2")
+@RequestMapping("/v1")
 public class HomeController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HomeController.class);
