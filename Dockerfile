@@ -4,7 +4,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Runtime stage: run the fat JAR on JDK 17
-FROM ibm-semeru-runtimes:open-17.0.12_7_openj9-0.46.1-jdk
+FROM adoptopenjdk/openjdk17-openj9:debian-slim
 COPY --from=build target/spring-project-generator-1.0.0-SNAPSHOT.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
