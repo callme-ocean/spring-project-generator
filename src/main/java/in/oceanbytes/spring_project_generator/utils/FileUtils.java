@@ -31,9 +31,11 @@ public final class FileUtils {
     }
 
     private static void zipFileRecursively(File fileToZip, String fileName, ZipOutputStream zos) throws IOException {
-        if (fileToZip.isHidden()) {
+        /*comment below check to include .gitignore file inside zip on linux env*/
+        /*if (fileToZip.isHidden()) {
             return;
-        }
+        }*/
+
         if (fileToZip.isDirectory()) {
             if (!fileName.endsWith("/")) {
                 fileName += "/";
