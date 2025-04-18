@@ -65,7 +65,7 @@ cat > "$PROJECT_NAME/pom.xml" <<EOF
 EOF
 
 # Create .gitignore
-cat > "$PROJECT_NAME/.gitignore" <<'EOL'
+cat > "$PROJECT_NAME/.gitignore" <<EOF
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -99,4 +99,4 @@ build/
 
 ### VS Code ###
 .vscode/
-EOL
+EOF
