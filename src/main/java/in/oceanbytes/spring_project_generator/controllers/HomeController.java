@@ -2,7 +2,9 @@ package in.oceanbytes.spring_project_generator.controllers;
 
 import in.oceanbytes.spring_project_generator.models.ProjectRequest;
 import in.oceanbytes.spring_project_generator.services.ProjectService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,30 +16,44 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Arrays;
+import java.util.List;
 
 @Controller
-@RequestMapping("/v2")
+@RequestMapping("/v1")
 public class HomeController {
 
-    @Autowired
-    private ProjectService projectService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(HomeController.class);
+
+    private final ProjectService projectService;
+
+    @Value("${project.generator.available-packages}")
+    private String availablePackagesRaw;
+
+    @Value("${project.generator.available-apis}")
+    private String availableApisRaw;
+
+    public HomeController(ProjectService projectService) {
+        this.projectService = projectService;
+    }
+
 
     // Display the UI form.
     @GetMapping("/generator")
     public String showForm(Model model) {
-        System.out.printf("inside");
         // Define the list of packages that users can select.
-        String[] availablePackages = {
-                "controllers", "services", "repositories", "models",
-                "exceptions", "config", "common", "constants", "aspects", "entities"
-        };
+        List<String> availablePackages = Arrays.asList(availablePackagesRaw.split(","));
+        LOGGER.debug("availablePackages : {}", availablePackages);
+
         // Define the list of APIs.
-        String[] availableAPIs = {"GET", "POST", "PUT", "DELETE"};
-		
+        List<String> availableAPIs = Arrays.asList(availableApisRaw.split(","));
+        LOGGER.debug("availableAPIs : {}", availableAPIs);
+
         model.addAttribute("availablePackages", availablePackages);
-		model.addAttribute("availableAPIs", availableAPIs);
+        model.addAttribute("availableAPIs", availableAPIs);
         // Bind an empty ProjectRequest for form data binding.
         model.addAttribute("projectRequest", new ProjectRequest());
+
         return "index"; // Returns the index.html template.
     }
 
@@ -53,7 +69,4 @@ public class HomeController {
                 .contentType(MediaType.valueOf("application/zip"))
                 .body(resource);
     }
-
-
-
 }

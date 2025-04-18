@@ -6,3 +6,10 @@ server:
 logging:
   level:
     root: INFO
+
+project:
+  generator:
+    available-packages: controllers,services,repositories,models,exceptions,config,common,constants,aspects,entities,utils
+    available-apis: GET,POST,PUT,DELETE
+
+delete-files-after-seconds: 60
