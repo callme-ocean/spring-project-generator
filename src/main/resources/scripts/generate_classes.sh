@@ -26,19 +26,19 @@ if echo "$PACKAGES_CSV" | grep -iwq "controllers"; then
       api_upper=$(tr '[:lower:]' '[:upper:]' <<< "$api")
       case "$api_upper" in
         GET)
-          API_METHODS+=$'\n'"    @GetMapping
+          API_METHODS+=$'\n'"    @GetMapping(\"/get-all-items\")
     public ResponseEntity<List<String>> getAllItems() {
         return ResponseEntity.ok(new ArrayList<>(items.values()));
     }
 
-    @GetMapping(\"/{id}\")
+    @GetMapping(\"/get-item/{id}\")
     public ResponseEntity<String> getItemById(@PathVariable Long id) {
         String item = items.get(id);
         return item != null ? ResponseEntity.ok(item) : ResponseEntity.notFound().build();
     }"
           ;;
         POST)
-          API_METHODS+=$'\n'"    @PostMapping
+          API_METHODS+=$'\n'"    @PostMapping(\"/create-item\")
     public ResponseEntity<String> createItem(@RequestBody String item) {
         long id = idCounter++;
         items.put(id, item);
@@ -46,7 +46,7 @@ if echo "$PACKAGES_CSV" | grep -iwq "controllers"; then
     }"
           ;;
         PUT)
-          API_METHODS+=$'\n'"    @PutMapping(\"/{id}\")
+          API_METHODS+=$'\n'"    @PutMapping(\"/update-item/{id}\")
     public ResponseEntity<String> updateItem(@PathVariable Long id, @RequestBody String newItem) {
         if (!items.containsKey(id)) {
             return ResponseEntity.notFound().build();
@@ -56,7 +56,7 @@ if echo "$PACKAGES_CSV" | grep -iwq "controllers"; then
     }"
           ;;
         DELETE)
-          API_METHODS+=$'\n'"    @DeleteMapping(\"/{id}\")
+          API_METHODS+=$'\n'"    @DeleteMapping(\"/delete-item/{id}\")
     public ResponseEntity<String> deleteItem(@PathVariable Long id) {
         if (!items.containsKey(id)) {
             return ResponseEntity.notFound().build();
