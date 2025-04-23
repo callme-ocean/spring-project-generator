@@ -11,5 +11,6 @@ project:
   generator:
     available-packages: controllers,services,repositories,models,exceptions,config,common,constants,aspects,entities,utils
     available-apis: GET,POST,PUT,DELETE
+    available-java-versions: 17,21
 
 delete-files-after-seconds: 60

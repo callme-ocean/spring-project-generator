@@ -39,6 +39,7 @@ public class ProjectService {
         String projectName = request.getProjectName();
         String groupName = request.getGroupName();
         String packageCsv = String.join(",", request.getPackages());
+        String javaVersion = request.getJavaVersion() != null ? request.getJavaVersion() : "17";
 
         // Prepare the APIs parameter (if any)
         String apis = "";
@@ -68,15 +69,15 @@ public class ProjectService {
         if (osName.contains("win")) {
             // On Windows, run via bash (ensure bash is in PATH)
             if (apis.isEmpty()) {
-                pb = new ProcessBuilder("bash", mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
+                pb = new ProcessBuilder("bash", mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, javaVersion);
             } else {
-                pb = new ProcessBuilder("bash", mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis);
+                pb = new ProcessBuilder("bash", mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis, javaVersion);
             }
         } else {
             if (apis.isEmpty()) {
-                pb = new ProcessBuilder(mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv);
+                pb = new ProcessBuilder(mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, javaVersion);
             } else {
-                pb = new ProcessBuilder(mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis);
+                pb = new ProcessBuilder(mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis, javaVersion);
             }
         }
         pb.directory(tempDir.toFile());

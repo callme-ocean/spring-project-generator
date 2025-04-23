@@ -32,7 +32,7 @@ cat > "$PROJECT_NAME/pom.xml" <<EOF
     <name>$PROJECT_NAME</name>
     <description>Demo project for Spring Boot</description>
     <properties>
-        <java.version>17</java.version>
+        <java.version>$JAVA_VERSION</java.version>
     </properties>
     <dependencies>
         <dependency>
