@@ -28,10 +28,13 @@ public class HomeController {
     private final ProjectService projectService;
 
     @Value("${project.generator.available-packages}")
-    private String availablePackagesRaw;
+    private String packagesAvailable;
 
     @Value("${project.generator.available-apis}")
-    private String availableApisRaw;
+    private String apisAvailable;
+
+    @Value("${project.generator.available-java-versions}")
+    private String javaVersionsAvailable;
 
     public HomeController(ProjectService projectService) {
         this.projectService = projectService;
@@ -42,15 +45,21 @@ public class HomeController {
     @GetMapping("/generator")
     public String showForm(Model model) {
         // Define the list of packages that users can select.
-        List<String> availablePackages = Arrays.asList(availablePackagesRaw.split(","));
+        List<String> availablePackages = Arrays.asList(this.packagesAvailable.split(","));
         LOGGER.debug("availablePackages : {}", availablePackages);
 
-        // Define the list of APIs.
-        List<String> availableAPIs = Arrays.asList(availableApisRaw.split(","));
+        // Define the list of APIs that user can select.
+        List<String> availableAPIs = Arrays.asList(apisAvailable.split(","));
         LOGGER.debug("availableAPIs : {}", availableAPIs);
+
+        // Define the list of Java versions that user can select.
+        List<String> availableJavaVersions = Arrays.asList(javaVersionsAvailable.split(","));
+        LOGGER.debug("availableJavaVersions : {}", availableJavaVersions);
 
         model.addAttribute("availablePackages", availablePackages);
         model.addAttribute("availableAPIs", availableAPIs);
+        model.addAttribute("availableJavaVersions", availableJavaVersions);
+
         // Bind an empty ProjectRequest for form data binding.
         model.addAttribute("projectRequest", new ProjectRequest());
 

@@ -24,6 +24,16 @@
             <input type="text" id="groupName" name="groupName" th:value="${projectRequest.groupName}" required/>
         </div>
         <div class="form-section">
+            <div class="section-title">Select Java Version</div>
+            <div th:each="version : ${availableJavaVersions}">
+                <label style="margin-right: 10px;">
+                    <input type="radio" name="javaVersion" th:value="${version}"
+                           th:checked="${version == '17'}"/>
+                    <span th:text="${version}">17</span>
+                </label>
+            </div>
+        </div>
+        <div class="form-section">
             <div class="section-title">Select Packages</div>
             <div class="packages-grid">
                 <div class="package-card" th:each="pkg : ${availablePackages}" th:attr="data-pkg=${pkg}">

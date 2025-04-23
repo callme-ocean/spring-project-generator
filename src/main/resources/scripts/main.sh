@@ -13,9 +13,10 @@ PROJECT_NAME=$1
 GROUP_NAME=$2
 PACKAGES_CSV=$3
 APIS=${4:-}  # optional; e.g., "GET,POST,PUT,DELETE"
+JAVA_VERSION=${5:-17} # default to 17 if not provided
 
 # Export variables so that sub-scripts can use them.
-export PROJECT_NAME GROUP_NAME PACKAGES_CSV APIS
+export PROJECT_NAME GROUP_NAME PACKAGES_CSV APIS JAVA_VERSION
 
 # Convert project name to package name (remove hyphens and lower-case)
 export PACKAGE_NAME

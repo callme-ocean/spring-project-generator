@@ -7,8 +7,7 @@ public class ProjectRequest {
     private String groupName;
     private List<String> packages;
     private List<String> apis;
-
-    // Getters and setters
+    private String javaVersion;
 
     public String getProjectName() {
         return projectName;
@@ -40,5 +39,13 @@ public class ProjectRequest {
 
     public void setApis(List<String> apis) {
         this.apis = apis;
+    }
+
+    public String getJavaVersion() {
+        return javaVersion;
+    }
+
+    public void setJavaVersion(String javaVersion) {
+        this.javaVersion = javaVersion;
     }
 }
