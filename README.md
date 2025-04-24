@@ -5,7 +5,6 @@
 
 _Empower your team to spin up fully‑configured, best‑practice Spring microservices in seconds—complete with layered packages, REST endpoint stubs, AOP logging, exception handling, flexible Java versions, and more. Consistency, speed, and maintainability at your fingertips._
 
----
 
 ## 🌐 Live Project
 
@@ -13,7 +12,6 @@ Try out the live generator here:
 
 🔗 **[Spring Boot Project Generator](https://spring-boot-project-generator.oceanbytes.in/api/spring-project-generator/v1/generator)**
 
----
 
 ## ✨ Features
 
@@ -24,7 +22,6 @@ Try out the live generator here:
 - Auto‑generate boilerplate (controllers, exceptions, logging, constants)
 - Adds `.gitignore`, `application.yml`, `pom.xml` with dynamic group/artifact IDs
 
----
 
 ## 🧠 How It Works
 
@@ -60,7 +57,6 @@ etc.), and the tool:
 - Under the hood, a set of small, well-organized shell scripts each handle one concern (directories, configs, classes).
 - Easy to extend—add new templates or tweak outputs without monolithic scripts.
 
----
 
 ## 🚀 How It Accelerates Microservice Development
 
@@ -85,7 +81,6 @@ etc.), and the tool:
   </br>Because each service starts from the same template, integrating new microservices into your pipelines, Docker
   builds, and Kubernetes manifests becomes a repeatable process.
 
----
 
 ## 🎯 Day-to-Day Benefit
 
@@ -102,7 +97,6 @@ etc.), and the tool:
 4. **Rapid Prototyping**
    </br>Spin up sandbox services for PoCs in seconds, with all the standard plumbing ready.
 
----
 
 ## 📸 Screenshots
 
@@ -117,7 +111,6 @@ etc.), and the tool:
 
 </details>
 
----
 
 ## 📦 Installation
 
@@ -141,7 +134,6 @@ java -jar target/spring-project-generator-1.0.0-SNAPSHOT.jar
 
 Then open your browser at `http://localhost:8080/api/spring-project-generator/v1/generator`.
 
----
 
 ## 🧪 Usage Guide
 
@@ -164,7 +156,6 @@ Inside the ZIP you’ll find:
 └── .gitignore
 ```
 
----
 
 ## ⚙️ Tech Stack
 
@@ -172,13 +163,11 @@ Inside the ZIP you’ll find:
 - **Backend**: Spring boot
 - **Deployment**: Render
 
----
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to open issues or submit a Pull Request.
 
----
 
 ## 🤔 Future Steps
 
