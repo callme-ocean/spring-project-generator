@@ -2,6 +2,8 @@
 
 ![Project Logo](https://placehold.co/600x200?text=Spring+Boot+Project+Generator)
 
+[![Buy Me a Coffee](https://img.shields.io/badge/buy_me_a_coffee-fd6744?logo=buy-me-a-coffee&logoColor=white&style=for-the-badge&logoSize=auto)](https://buymeacoffee.com/sagarb)
+
 
 _Empower your team to spin up fully‑configured, best‑practice Spring microservices in seconds—complete with layered packages, REST endpoint stubs, AOP logging, exception handling, flexible Java versions, and more. Consistency, speed, and maintainability at your fingertips._
 
