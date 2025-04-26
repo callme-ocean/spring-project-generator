@@ -52,7 +52,6 @@ etc.), and the tool:
 ### 4. Flexible Java Version
 
 - Choose Java 17 or Java 21 at generation time, and the `pom.xml` adapts automatically.
-- Modular shell scripts handle directory creation, config generation, and class templates
 
 ### 5. Clean, Modular Scripts
 
