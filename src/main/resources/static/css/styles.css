@@ -194,3 +194,27 @@ input[type="checkbox"] {
 .color-half-text {
     color: var(--oceanbytes-color);
 }
+
+/* Footer styles */
+footer {
+    background-color: var(--surface-color);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    margin-top: 10rem; /* Increased space between form and footer */
+}
+
+.footer-content {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.footer-content a {
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.footer-content a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}

@@ -1,7 +1,8 @@
 # Spring Boot Project Generator
 
-![Project Logo](https://placehold.co/600x200?text=Spring+Boot+Project+Generator)
+![Project Logo](https://raw.githubusercontent.com/callme-ocean/callme-ocean/main/projectScreenshots/springBootProjectGenerator/springBootProjectGenerator_img1.png)
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL--v3-blue.svg?style=for-the-badge&logoSize=auto)](https://www.gnu.org/licenses/agpl-3.0.html)
 [![Buy Me a Coffee](https://img.shields.io/badge/buy_me_a_coffee-fd6744?logo=buy-me-a-coffee&logoColor=white&style=for-the-badge&logoSize=auto)](https://buymeacoffee.com/sagarb)
 
 
@@ -104,11 +105,10 @@ etc.), and the tool:
 <details>
 <summary>Expand to view screenshots</summary>
 
-|                     Home Page                      |           Package & API Selection            |
-|:--------------------------------------------------:|:--------------------------------------------:|
-|      ![Home Page](docs/screenshots/home.png)       | ![Selection](docs/screenshots/selection.png) |
-|              Java Version & Generate               |                 Download ZIP                 |
-| ![Java Version](docs/screenshots/java-version.png) |  ![Download](docs/screenshots/download.png)  |
+|                     Home Page                      |
+|:--------------------------------------------------:|
+|      ![Home Page](https://raw.githubusercontent.com/callme-ocean/callme-ocean/main/projectScreenshots/springBootProjectGenerator/springBootProjectGenerator_img1.png)       | 
+
 
 </details>
 
@@ -160,15 +160,28 @@ Inside the ZIP you’ll find:
 
 ## ⚙️ Tech Stack
 
-- **Frontend**: Thymeleaf
-- **Backend**: Spring boot
+- **Frontend**: Thymeleaf, HTML, CSS
+- **Backend**: Spring boot, Java
 - **Deployment**: Render
+
+## 📄 License
+
+This project is licensed under the [GNU Affero General Public License version 3 (AGPLv3)](https://www.gnu.org/licenses/agpl-3.0.html).
 
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to open issues or submit a Pull Request.
+Contributions are welcome! </br>
+Please feel free to submit pull requests to improve features, fix bugs, or suggest enhancements.
 
+## 📜 Credits for Derivatives
+
+If you create a new project or application by modifying or building on top of this code, please include the following in your README:
+
+> This project is based on [Spring Boot Project Generator](https://github.com/your-username/your-repo-name) created by Sagar Bhadouria </br>
+> Licensed under the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html).
+
+This helps preserve proper attribution while complying with AGPLv3’s notice-preservation requirements.
 
 ## 🤔 Future Steps
 
