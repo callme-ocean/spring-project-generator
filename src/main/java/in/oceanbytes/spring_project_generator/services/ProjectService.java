@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +40,7 @@ public class ProjectService {
 
         String projectName = request.getProjectName();
         String groupName = request.getGroupName();
-        String packageCsv = String.join(",", request.getPackages());
+        String packageCsv = request.getPackages() == null || request.getPackages().isEmpty() ? "" : String.join(",", request.getPackages());
         String javaVersion = request.getJavaVersion() != null ? request.getJavaVersion() : "17";
 
         // Prepare the APIs parameter (if any)
@@ -65,21 +67,18 @@ public class ProjectService {
         String osName = System.getProperty("os.name").toLowerCase();
         LOGGER.debug("osName : {}", osName);
 
-        ProcessBuilder pb;
+        List<String> scriptArguments = new ArrayList<>();
         if (osName.contains("win")) {
-            // On Windows, run via bash (ensure bash is in PATH)
-            if (apis.isEmpty()) {
-                pb = new ProcessBuilder("bash", mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, javaVersion);
-            } else {
-                pb = new ProcessBuilder("bash", mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis, javaVersion);
-            }
-        } else {
-            if (apis.isEmpty()) {
-                pb = new ProcessBuilder(mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, javaVersion);
-            } else {
-                pb = new ProcessBuilder(mainScriptFile.getAbsolutePath(), projectName, groupName, packageCsv, apis, javaVersion);
-            }
+            scriptArguments.add("bash");
         }
+        scriptArguments.add(mainScriptFile.getAbsolutePath());
+        scriptArguments.add(projectName);
+        scriptArguments.add(groupName);
+        scriptArguments.add(packageCsv);
+        scriptArguments.add(apis);
+        scriptArguments.add(javaVersion);
+
+        ProcessBuilder pb = new ProcessBuilder(scriptArguments);
         pb.directory(tempDir.toFile());
         Process process = pb.start();
 
