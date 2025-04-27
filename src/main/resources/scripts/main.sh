@@ -1,6 +1,5 @@
 #!/bin/bash
-# Usage: ./generate_project.sh <project-name> <group-name> <comma-separated-packages> [comma-separated-apis]
-
+# Usage: ./generate_project.sh <project-name> <group-name> <comma-separated-packages> [comma-separated-apis] [java-version]
 set -euo pipefail
 
 # Validate arguments
@@ -11,7 +10,7 @@ fi
 
 PROJECT_NAME=$1
 GROUP_NAME=$2
-PACKAGES_CSV=$3
+PACKAGES_CSV=${3:-}
 APIS=${4:-}  # optional; e.g., "GET,POST,PUT,DELETE"
 JAVA_VERSION=${5:-17} # default to 17 if not provided
 
