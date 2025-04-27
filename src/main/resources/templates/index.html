@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spring Boot Project Generator</title>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/modern-normalize/1.1.0/modern-normalize.min.css"/>
@@ -9,32 +10,46 @@
 </head>
 <body>
 <header>
-    <h1>Spring Boot Project Generator</h1>
+    <h1><span class="color-half-text">Spring Boot</span> Project Generator</h1>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <span class="moon-icon">🌙</span>
+        <span class="sun-icon">☀️</span>
+    </button>
 </header>
 <main>
     <form th:action="@{/v1/generate}" method="get">
+        <!-- Project Metadata Section -->
         <div class="form-section">
-            <div class="section-title">Project Name</div>
-            <label for="projectName">Enter your project name:</label>
-            <input type="text" id="projectName" name="projectName" th:value="${projectRequest.projectName}" required/>
-        </div>
-        <div class="form-section">
-            <div class="section-title">Group Name</div>
-            <label for="groupName">Enter your group name:</label>
-            <input type="text" id="groupName" name="groupName" th:value="${projectRequest.groupName}" required/>
-        </div>
-        <div class="form-section">
-            <div class="section-title">Select Java Version</div>
-            <div th:each="version : ${availableJavaVersions}">
-                <label style="margin-right: 10px;">
-                    <input type="radio" name="javaVersion" th:value="${version}"
-                           th:checked="${version == '17'}"/>
-                    <span th:text="${version}">17</span>
-                </label>
+            <div class="section-title">Project Metadata</div>
+            <div class="metadata-grid">
+                <div class="input-group">
+                    <label for="groupName">GroupId</label>
+                    <input type="text" id="groupName" name="groupName" th:value="${projectRequest.groupName}" required/>
+                </div>
+                <div class="input-group">
+                    <label for="projectName">ArtifactId</label>
+                    <input type="text" id="projectName" name="projectName" th:value="${projectRequest.projectName}"
+                           required/>
+                </div>
             </div>
         </div>
+
+        <!-- Java Version Section -->
         <div class="form-section">
-            <div class="section-title">Select Packages</div>
+            <div class="section-title">Java Version</div>
+            <div class="radio-group">
+                <div th:each="version : ${availableJavaVersions}">
+                    <label class="radio-option">
+                        <input type="radio" name="javaVersion" th:value="${version}" th:checked="${version == '17'}"/>
+                        <span th:text="${version}">17</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Packages Section -->
+        <div class="form-section">
+            <div class="section-title">Packages</div>
             <div class="packages-grid">
                 <div class="package-card" th:each="pkg : ${availablePackages}" th:attr="data-pkg=${pkg}">
                     <input type="checkbox" th:id="${pkg}" name="packages" th:value="${pkg}"
@@ -43,9 +58,10 @@
                 </div>
             </div>
         </div>
-        <!-- API Selection Section (initially hidden) -->
+
+        <!-- Hidden API Section (keep existing functionality) -->
         <div class="form-section" id="apiSelectionSection" style="display: none;">
-            <div class="section-title">Select APIs</div>
+            <div class="section-title">APIs</div>
             <div class="packages-grid">
                 <div class="package-card" th:each="api : ${availableAPIs}" th:attr="data-api=${api}">
                     <input type="checkbox" th:id="${api}" name="apis" th:value="${api}"
@@ -54,7 +70,8 @@
                 </div>
             </div>
         </div>
-        <button type="submit" class="generate-btn">Generate Project</button>
+
+        <button type="submit" class="generate-btn">GENERATE</button>
     </form>
 </main>
 <script th:src="@{/js/script.js}"></script>
