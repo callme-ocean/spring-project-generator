@@ -178,7 +178,7 @@ Please feel free to submit pull requests to improve features, fix bugs, or sugge
 
 If you create a new project or application by modifying or building on top of this code, please include the following in your README:
 
-> This project is based on [Spring Boot Project Generator](https://github.com/your-username/your-repo-name) created by Sagar Bhadouria </br>
+> This project is based on [Spring Boot Project Generator](https://github.com/callme-ocean/spring-project-generator) created by Sagar Bhadouria </br>
 > Licensed under the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html).
 
 This helps preserve proper attribution while complying with AGPLv3’s notice-preservation requirements.
