@@ -100,14 +100,14 @@ etc.), and the tool:
    </br>Spin up sandbox services for PoCs in seconds, with all the standard plumbing ready.
 
 
-## 📸 Screenshots
+## 📸 Quick Demo
 
 <details>
-<summary>Expand to view screenshots</summary>
+<summary>Expand to view quick demo</summary>
 
-|                     Home Page                      |
-|:--------------------------------------------------:|
-|      ![Home Page](https://raw.githubusercontent.com/callme-ocean/callme-ocean/main/projectScreenshots/springBootProjectGenerator/springBootProjectGenerator_img1.png)       | 
+|                                                                               Demo                                                                               |
+|:----------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| ![Home Page](https://raw.githubusercontent.com/callme-ocean/callme-ocean/main/projectScreenshots/springBootProjectGenerator/springBootProjectGenerator_demo.gif) | 
 
 
 </details>
