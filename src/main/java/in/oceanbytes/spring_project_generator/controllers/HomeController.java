@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Controller
-@RequestMapping("/v1")
+@RequestMapping("/api/spring-project-generator/v1")
 public class HomeController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HomeController.class);

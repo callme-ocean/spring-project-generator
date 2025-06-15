@@ -1,7 +1,7 @@
 server:
   port: 8080
-  servlet:
-    context-path: /api/spring-project-generator
+#  servlet:
+#    context-path: /api/spring-project-generator
 
 logging:
   level:
